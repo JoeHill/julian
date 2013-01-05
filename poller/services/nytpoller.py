@@ -1,5 +1,4 @@
 import sys
-import re
 import time
 import datetime
 
@@ -62,14 +61,10 @@ class NytPoller( Poller ):
             feed_text = None 
             while not feed_text and retries > 0:
                 try:
-                    sys.stderr.write( "Getting text for feed: " + feed + "\n" )
                     feed_text = self.get( feed )
                     yield feed, feed_text
                 except:
                     retries = retries - 1
-                    sys.stderr.write( "Retrying for feed: " + feed + "\n" )
-                
-            #feed_dom  = self.parse()
       
     def articles(self):
         pass
@@ -95,19 +90,16 @@ class NytPoller( Poller ):
         self.document = document
         self.parse()
         items = self.items()
-        sys.stderr.write( "Pulling " + str(len(items)) + " articles...\n" )
         for item in items:
             pubdate = item.findAll('pubdate')
             published_at = self.get_datetime( pubdate.pop().get_text() )
             links = [ link.next_sibling for link in item.findAll( 'link' ) ]
             for link in links:
                 if note.exists( link ):
-                    sys.stderr.write( "Note exists...\n" )
                     continue
                 try:
                     self.fetch_and_clean_dom( link )
                 except EmptyDOM: # Server returned an empty response.
-                    sys.stderr.write( "Empty DOM for link: " + link + ".\n" )
                     continue
                 prioritya = ".  ".join( self.h1s() )
                 priorityb = ".  ".join( self.h2s() )

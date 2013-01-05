@@ -1,0 +1,7 @@
+nbproject
+*.orig
+*.pyc
+cache/*
+seeds/*
+cache
+seeds

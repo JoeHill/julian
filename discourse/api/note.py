@@ -1,4 +1,5 @@
 from julian.discourse.services.db import note
+from julian.discourse.api.models.note import Note
 
 def exists( identifier ):
     """
@@ -23,5 +24,21 @@ def get_or_create( identifier='', prioritya="", priorityb="", priorityc="", prio
     
     :rtype tuple(tuple(<Note>, <bool>), tuple(<exec info>))
     """
-    return note.get_or_create(**locals())
+    note_created, errors = note.get_or_create(**locals())
+    n, created = note_created
+    return ( db_to_model(n), created ), errors
 
+def db_to_model(o):
+    if not o:
+        raise Exception( "Object not passed to convert to Model" )
+    return Note(
+        identifier   = o.identifier,
+        prioritya    = o.prioritya,
+        priorityb    = o.priorityb,
+        priorityc    = o.priorityc,
+        priorityd    = o.priorityd,
+        prioritye    = o.prioritye,
+        created_at   = o.created_at,
+        updated_at   = o.updated_at,
+        published_at = o.published_at
+    )

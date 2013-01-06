@@ -60,6 +60,17 @@ class Poller:
         
         return self.document  
 
+    def fetch_pages(self):
+        for feed in self.rss_feeds:
+            retries = 3
+            feed_text = None 
+            while not feed_text and retries > 0:
+                try:
+                    feed_text = self.get( feed )
+                    yield feed, feed_text
+                except:
+                    retries = retries - 1
+
     def parse( self ):
         """
         Parses the internally stored document to provide an interface to the DOM

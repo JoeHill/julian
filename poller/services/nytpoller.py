@@ -1,12 +1,4 @@
-import sys
-import time
-import datetime
-
 from poller.services.internals import Poller
-from poller.services.exceptions import EmptyDOM
-from poller.services.exceptions import NoDate
-
-from discourse.api import note
 
 class NytPoller( Poller ):
 

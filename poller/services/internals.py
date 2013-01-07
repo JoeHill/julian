@@ -67,6 +67,11 @@ class Poller:
         return self.document  
 
     def fetch_pages(self):
+        """
+        A generator which fetches pages from an RSS feed one by one.
+        
+        :rtype <generator>: Returns a tuple of the link to the feed and the text of the feed.
+        """
         for feed in self.rss_feeds:
             retries = 3
             feed_text = None 
@@ -185,6 +190,14 @@ class Poller:
         
 
     def process_as_rss(self, document):
+        """
+        Processes a document assuming RSS format. It follows the links to the articles 
+        and saves them with the appropriate priority for the tag text is found under.
+        
+        :param unicode document: The RSS source code
+        
+        :rtype None:
+        """
         self.document = document
         self.parse()
         items = self.items()
@@ -210,6 +223,13 @@ class Poller:
                     sys.stderr.write( str( errors ) + "\n" )
                     
     def get_datetime(self, published_at):
+        """
+        Takes a 'pubdate' tag content and attempts to convert it to a datetime.datetime object.
+        
+        :param unicode published_at: The <pubdate> tag contents. Ideally format will be in ( "%a, %d %b %Y %H:%M:%S +0000", "%a, %d %b %Y %H:%M:%S %Z" )
+        
+        :rtype datetime.datetime:
+        """
         # Sat, 05 Jan 2013 03:55:54 +0000
         if not published_at:
             return datetime.datetime.now()

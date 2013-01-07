@@ -24,7 +24,13 @@ def get_or_create( identifier='', prioritya="", priorityb="", priorityc="", prio
     
     :rtype tuple(tuple(<Note>, <bool>), tuple(<exec info>))
     """
-    note_created, errors = note.get_or_create(**locals())
+    note_created, errors = note.get_or_create(identifier=identifier, 
+                                              prioritya=prioritya, 
+                                              priorityb=priorityb, 
+                                              priorityc=priorityc, 
+                                              priorityd=priorityd, 
+                                              prioritye=prioritye, 
+                                              published_at=published_at)
     n, created = note_created
     return ( db_to_model(n), created ), errors
 

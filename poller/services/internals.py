@@ -1,4 +1,7 @@
 import re
+import sys
+import time
+import datetime
 
 from bs4 import BeautifulSoup
 from bs4 import Comment
@@ -10,6 +13,9 @@ import pycurl
 import StringIO
 
 from poller.services.exceptions import EmptyDOM
+from poller.services.exceptions import NoDate
+
+from discourse.api import note
 
 class Poller:
 
@@ -177,5 +183,50 @@ class Poller:
             elif hasattr( element, 'name' ) and element.name in ( 'SCRIPT', 'script' ):
                 element.extract()
         
+
+    def process_as_rss(self, document):
+        self.document = document
+        self.parse()
+        items = self.items()
+        for item in items:
+            pubdate = item.findAll('pubdate')
+            published_at = self.get_datetime( pubdate.pop().get_text() )
+            links = [ link.next_sibling for link in item.findAll( 'link' ) ]
+            for link in links:
+                if not link or note.exists( link ):
+                    continue
+                try:
+                    self.fetch_and_clean_dom( link )
+                except EmptyDOM: # Server returned an empty response.
+                    continue
+                prioritya = ".  ".join( self.h1s() )
+                priorityb = ".  ".join( self.h2s() )
+                priorityc = ".  ".join( self.h3s() )
+                priorityd = ".  ".join( [ a[0] for a in self.as_() ] )
+                prioritye = " ".join( self.ps() )
+                
+                n, errors = note.get_or_create( link, prioritya, priorityb, priorityc, priorityd, prioritye, published_at )
+                if errors[0]:
+                    sys.stderr.write( str( errors ) + "\n" )
+                    
+    def get_datetime(self, published_at):
+        # Sat, 05 Jan 2013 03:55:54 +0000
+        if not published_at:
+            return datetime.datetime.now()
+        if '+' in published_at:
+            t = time.strptime( published_at, "%a, %d %b %Y %H:%M:%S +0000" )
+        elif 'MT' in published_at:
+            t = time.strptime( published_at, "%a, %d %b %Y %H:%M:%S %Z" )
+        else:
+            raise NoDate( "No date could be discerned from <" + str( published_at ) + ">")
+
+        year = t.tm_year
+        month = t.tm_mon
+        day = t.tm_mday
+        hour = t.tm_hour
+        minute = t.tm_min
+        second = t.tm_sec
+        return datetime.datetime( year=year, month=month, day=day, hour=hour, minute=minute, second=second )
+    
     def __exit(self):
         pass

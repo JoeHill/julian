@@ -153,6 +153,16 @@ class Poller:
             self.parse()
         return [ item for item in self.DOM.findAll( 'item' ) ]
     
+    def entries(self):
+        """
+        Returns the list of entries for the page
+        
+        :rtype list(element):
+        """
+        if not self.DOM:
+            self.parse()
+        return [ item for item in self.DOM.findAll( 'entry' ) ]
+    
     def walk_dom(self, dom):
         """
         Walks the elements of a DOM recursively and returns a flattened list of all the elements.
@@ -187,7 +197,6 @@ class Poller:
                 element.extract()
             elif hasattr( element, 'name' ) and element.name in ( 'SCRIPT', 'script' ):
                 element.extract()
-        
 
     def process_as_rss(self, document):
         """

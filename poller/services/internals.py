@@ -246,6 +246,9 @@ class Poller:
             t = time.strptime( published_at, "%a, %d %b %Y %H:%M:%S +0000" )
         elif 'MT' in published_at:
             t = time.strptime( published_at, "%a, %d %b %Y %H:%M:%S %Z" )
+        elif 'T' in published_at and 'Z' in published_at:
+            #2013-01-08T12:02:12Z
+            t = time.strptime( published_at.replace( 'Z', 'UTC' ), '%Y-%m-%dT%H:%M:%S%Z' )
         else:
             raise NoDate( "No date could be discerned from <" + str( published_at ) + ">")
 

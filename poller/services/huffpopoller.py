@@ -1,3 +1,5 @@
+import sys
+
 from poller.services.internals import Poller
 
 from poller.services.exceptions import EmptyDOM
@@ -70,7 +72,7 @@ class HuffPoPoller( Poller ):
         "http://www.huffingtonpost.com/feeds/verticals/huffpost-home/index.xml",
         "http://www.huffingtonpost.com/feeds/verticals/tedweekends/index.xml"
     ]
-
+    
     def process_as_rss(self, document):
         self.document = document
         self.parse()
@@ -78,9 +80,14 @@ class HuffPoPoller( Poller ):
         for item in items:
             pubdate = item.findAll('published')
             published_at = self.get_datetime( pubdate.pop().get_text() )
-            links = [ link['src'] if 'src' in link else '' for link in item.findAll( 'link' ) ]
+            links = []
+            for link in item.findAll('link'):
+                try:
+                    links.append(link['href'])
+                except:
+                    pass
             for link in links:
-                if not link or note.exists( link ):
+                if not link or note.exists( link ) or 'jpg' in link:
                     continue
                 try:
                     self.fetch_and_clean_dom( link )
@@ -91,7 +98,6 @@ class HuffPoPoller( Poller ):
                 priorityc = ".  ".join( self.h3s() )
                 priorityd = ".  ".join( [ a[0] for a in self.as_() ] )
                 prioritye = " ".join( self.ps() )
-                
                 n, errors = note.get_or_create( link, prioritya, priorityb, priorityc, priorityd, prioritye, published_at )
                 if errors[0]:
                     sys.stderr.write( str( errors ) + "\n" )

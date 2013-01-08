@@ -260,5 +260,13 @@ class Poller:
         second = t.tm_sec
         return datetime.datetime( year=year, month=month, day=day, hour=hour, minute=minute, second=second )
     
+    def poll(self):
+        """
+        Executes polling.
+        """
+        pages =  self.fetch_pages()
+        for url, html in pages:
+            self.process_as_rss( html )
+    
     def __exit(self):
         pass

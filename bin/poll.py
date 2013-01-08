@@ -19,10 +19,10 @@ if __name__ == '__main__':
     os.environ['DJANGO_SETTINGS_MODULE'] = 'julian.settings'
     os.environ['USE_CALIENDO'] = 'True'
     
-    from julian.poller.api import nyt
-    from julian.poller.api import usatoday
-    from julian.poller.api import aljazeera
-    from julian.poller.api import huffpo
-    from julian.poller.api import msn
+    from julian.poller.services.api import nyt
+    from julian.poller.services.api import usatoday
+    from julian.poller.services.api import aljazeera
+    from julian.poller.services.api import huffpo
+    from julian.poller.services.api import msn
     
     poll()

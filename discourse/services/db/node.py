@@ -1,0 +1,50 @@
+import sys
+
+from julian.discourse.models import Edge
+from julian.discourse.models import Node
+
+def find_by_note_id(note_id):
+    """
+    If the note has been parsed this method will return the Nodes in the note. If not it will return unsaved Nodes for the note by parsing it.
+    
+    :param int note_id: The id for the note
+    
+    :rtype Note, [Errors]
+    """
+    try:
+        node_ids = []
+        es = Edge.objects.all().filter(note_id=note_id)
+        node_ids += [ es.from_node_id, es.to_node_id ]
+        node_ids = list( set( node_ids ) )
+        nodes, errors = find_by_ids( node_ids ) 
+        return es, errors
+    except:
+        return None, [sys.exc_info()]
+    
+def create_by_title(node_title):
+    """
+    Creates a node from a title
+    
+    :param str node_title: The title of the Node
+    
+    :rtype Node, [errors]
+    """
+    try:
+        n = Node.objects.create(title=node_title)
+        return n, []
+    except:
+        return None, [sys.exc_info()]
+        
+def find_by_ids(node_ids):
+    """
+    Returns a unique list of nodes given a list of node ids.
+    
+    :param list(int) node_ids: The ids of the nodes.
+    
+    :rtype list(Node), (Error):
+    """
+    try:
+        ns = Node.objects.all().filter(pk__in=node_ids)
+        return ns, []
+    except:
+        return None, [sys.exc_info()]

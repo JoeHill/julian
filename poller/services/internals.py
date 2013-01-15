@@ -20,9 +20,9 @@ from discourse.api import note
 class Poller:
 
     document = ""
-    DOM      = None
+    DOM = None
 
-    def __unicode_strip( self, unicode_string ):
+    def __unicode_strip(self, unicode_string):
         """
         Strips whitespace characters from unicode strings.
     
@@ -30,11 +30,11 @@ class Poller:
     
         :rtype unicode: The string with whitespace stripped from the beginning and end
         """
-        left = re.compile( "^\s*" )
-        right = re.compile( "\s*$" )
-        return right.sub( "", left.sub( "", unicode_string ) )
+        left = re.compile("^\s*")
+        right = re.compile("\s*$")
+        return right.sub("", left.sub("", unicode_string))
   
-    def get( self, url, params={}, retries=3 ):
+    def get(self, url, params={}, retries=3):
         """
         Fetches a url using GET. Passes params as a query string.
     
@@ -46,23 +46,23 @@ class Poller:
         self.document = ""
         if not self.document and retries > 0:
             try:
-                html = StringIO.StringIO( )
-                curl = pycurl.Curl( )
-                curl.setopt( pycurl.URL, str(url) )
-                curl.setopt( pycurl.FOLLOWLOCATION, True )
-                curl.setopt( pycurl.MAXREDIRS, 20 )
-                curl.setopt( pycurl.CONNECTTIMEOUT, 30 )
-                curl.setopt( pycurl.TIMEOUT, 100 )
-                curl.setopt( pycurl.NOSIGNAL, True )
-                curl.setopt( pycurl.WRITEFUNCTION, html.write )
+                html = StringIO.StringIO()
+                curl = pycurl.Curl()
+                curl.setopt(pycurl.URL, str(url))
+                curl.setopt(pycurl.FOLLOWLOCATION, True)
+                curl.setopt(pycurl.MAXREDIRS, 20)
+                curl.setopt(pycurl.CONNECTTIMEOUT, 30)
+                curl.setopt(pycurl.TIMEOUT, 100)
+                curl.setopt(pycurl.NOSIGNAL, True)
+                curl.setopt(pycurl.WRITEFUNCTION, html.write)
                 curl.perform()
                 self.document = html.getvalue()
             except:
                 retries = retries - 1       
-                self.get( url, params, retries )
+                self.get(url, params, retries)
                 
         if not self.document:
-            raise EmptyDOM( "Failed to get a DOM in get" )
+            raise EmptyDOM("Failed to get a DOM in get")
         
         return self.document  
 
@@ -77,23 +77,23 @@ class Poller:
             feed_text = None 
             while not feed_text and retries > 0:
                 try:
-                    feed_text = self.get( feed )
+                    feed_text = self.get(feed)
                     yield feed, feed_text
                 except:
                     retries = retries - 1
 
-    def parse( self ):
+    def parse(self):
         """
         Parses the internally stored document to provide an interface to the DOM
     
         :rtype instance: An instance of the BeautifulSoup object
         """
         if not self.document:
-            raise Exception( "No document set in poller" )
-        self.DOM = BeautifulSoup( self.document )
+            raise Exception("No document set in poller")
+        self.DOM = BeautifulSoup(self.document)
         return self.DOM
 
-    def h1s( self ):
+    def h1s(self):
         """
         Returns the list of text contents of h1 tags for the page, stipped.
     
@@ -101,9 +101,9 @@ class Poller:
         """
         if not self.DOM:
             self.parse()
-        return [ self.__unicode_strip( h1.get_text() ) for h1 in self.DOM.findAll( 'h1' ) ] 
+        return [ self.__unicode_strip(h1.get_text()) for h1 in self.DOM.findAll('h1') ] 
 
-    def h2s( self ):
+    def h2s(self):
         """
         Returns the list of text contents of h2 tags for the page, stipped.
     
@@ -111,7 +111,7 @@ class Poller:
         """
         if not self.DOM:
             self.parse()
-        return [ self.__unicode_strip( h2.get_text() ) for h2 in self.DOM.findAll( 'h2' ) ]
+        return [ self.__unicode_strip(h2.get_text()) for h2 in self.DOM.findAll('h2') ]
 
     def h3s(self):
         """
@@ -121,7 +121,7 @@ class Poller:
         """
         if not self.DOM:
             self.parse()
-        return [ self.__unicode_strip( h3.get_text() ) for h3 in self.DOM.findAll( 'h3' ) ]
+        return [ self.__unicode_strip(h3.get_text()) for h3 in self.DOM.findAll('h3') ]
 
     def as_(self):
         """
@@ -131,7 +131,7 @@ class Poller:
         """
         if not self.DOM:
             self.parse()
-        return [ ( self.__unicode_strip( a.get_text() ), a.get('href') ) for a in self.DOM.findAll( 'a' ) ]
+        return [ (self.__unicode_strip(a.get_text()), a.get('href')) for a in self.DOM.findAll('a') ]
 
     def ps(self):
         """
@@ -141,7 +141,7 @@ class Poller:
         """
         if not self.DOM:
             self.parse()
-        return [ self.__unicode_strip( p.get_text() ) for p in self.DOM.findAll( 'p' ) ]
+        return [ self.__unicode_strip(p.get_text()) for p in self.DOM.findAll('p') ]
     
     def items(self):
         """
@@ -151,7 +151,7 @@ class Poller:
         """
         if not self.DOM:
             self.parse()
-        return [ item for item in self.DOM.findAll( 'item' ) ]
+        return [ item for item in self.DOM.findAll('item') ]
     
     def entries(self):
         """
@@ -161,7 +161,7 @@ class Poller:
         """
         if not self.DOM:
             self.parse()
-        return [ item for item in self.DOM.findAll( 'entry' ) ]
+        return [ item for item in self.DOM.findAll('entry') ]
     
     def walk_dom(self, dom):
         """
@@ -174,7 +174,7 @@ class Poller:
         elements = []
         for element in dom.contents:
             elements.append(element)
-            if hasattr( element, 'contents' ):
+            if hasattr(element, 'contents'):
                 elements += self.walk_dom(element)
         return elements
     
@@ -189,13 +189,13 @@ class Poller:
         
         flattened_elements = self.walk_dom(self.DOM)
         for element in flattened_elements:
-            if isinstance( element, ( Doctype, Declaration ) ):
+            if isinstance(element, (Doctype, Declaration)):
                 element.extract()
-            elif isinstance( element, Comment ):
+            elif isinstance(element, Comment):
                 element.extract()
-            elif isinstance( element, CData ):
+            elif isinstance(element, CData):
                 element.extract()
-            elif hasattr( element, 'name' ) and element.name in ( 'SCRIPT', 'script' ):
+            elif hasattr(element, 'name') and element.name in ('SCRIPT', 'script'):
                 element.extract()
 
     def process_as_rss(self, document):
@@ -212,24 +212,26 @@ class Poller:
         items = self.items()
         for item in items:
             pubdate = item.findAll('pubdate')
-            published_at = self.get_datetime( pubdate.pop().get_text() )
-            links = [ link.next_sibling for link in item.findAll( 'link' ) ]
+            if not pubdate:
+                continue
+            published_at = self.get_datetime(pubdate.pop().get_text())
+            links = [ link.next_sibling for link in item.findAll('link') ]
             for link in links:
-                if not link or note.exists( link ):
+                if not link or note.exists(link):
                     continue
                 try:
-                    self.fetch_and_clean_dom( link )
+                    self.fetch_and_clean_dom(link)
                 except EmptyDOM: # Server returned an empty response.
                     continue
-                prioritya = ".  ".join( self.h1s() )
-                priorityb = ".  ".join( self.h2s() )
-                priorityc = ".  ".join( self.h3s() )
-                priorityd = ".  ".join( [ a[0] for a in self.as_() ] )
-                prioritye = " ".join( self.ps() )
+                prioritya = ".  ".join(self.h1s())
+                priorityb = ".  ".join(self.h2s())
+                priorityc = ".  ".join(self.h3s())
+                priorityd = ".  ".join([ a[0] for a in self.as_() ])
+                prioritye = " ".join(self.ps())
                 
-                n, errors = note.get_or_create( link, prioritya, priorityb, priorityc, priorityd, prioritye, published_at )
-                if errors[0]:
-                    sys.stderr.write( str( errors ) + "\n" )
+                n, errors = note.get_or_create(link, prioritya, priorityb, priorityc, priorityd, prioritye, published_at)
+                if errors:
+                    sys.stderr.write(str(errors) + "\n")
                     
     def get_datetime(self, published_at):
         """
@@ -242,15 +244,31 @@ class Poller:
         # Sat, 05 Jan 2013 03:55:54 +0000
         if not published_at:
             return datetime.datetime.now()
+        # Datetime formats we've encountered from most to least common.
+        
+        published_at = re.sub( r"\s+", " ", str( published_at) )
+        published_at = published_at.replace( 'PST', 'GMT' ) # TODO: Fix these.
+        published_at = published_at.replace( 'EST', 'GMT' )
+        published_at = published_at.replace( 'MEZ', 'GMT' )
+        
+        print "Converting " + str( published_at )
         if '+' in published_at:
-            t = time.strptime( published_at, "%a, %d %b %Y %H:%M:%S +0000" )
+            t = time.strptime(published_at, "%a, %d %b %Y %H:%M:%S +0000")
         elif 'MT' in published_at:
-            t = time.strptime( published_at, "%a, %d %b %Y %H:%M:%S %Z" )
+            t = time.strptime(published_at, "%a, %d %b %Y %H:%M:%S %Z")
         elif 'T' in published_at and 'Z' in published_at:
-            #2013-01-08T12:02:12Z
-            t = time.strptime( published_at.replace( 'Z', 'UTC' ), '%Y-%m-%dT%H:%M:%S%Z' )
+            t = time.strptime(published_at.replace('Z', 'UTC'), '%Y-%m-%dT%H:%M:%S%Z')
+        elif ' Z' in published_at:
+            t = time.strptime(published_at.replace('Z', 'UTC'), "%a, %d %b %Y %H:%M:%S %Z")
+        elif '/' in published_at and ( 'AM' in published_at or 'PM' in published_at ):
+            t = time.strptime( published_at, "%m/%d/%Y %I:%M:%S %p" )
+        elif ',' in published_at:
+            try:
+                t = time.strptime( published_at, "%a, %d %b %Y %H:%M:%S" )
+            except:
+                t = time.strptime( published_at, "%a, %d %b %Y %H:%M:%S %Z" )
         else:
-            raise NoDate( "No date could be discerned from <" + str( published_at ) + ">")
+            raise Exception( "Couldn't discern datetime from <" + str( published_at ) + ">" )
 
         year = t.tm_year
         month = t.tm_mon
@@ -258,15 +276,15 @@ class Poller:
         hour = t.tm_hour
         minute = t.tm_min
         second = t.tm_sec
-        return datetime.datetime( year=year, month=month, day=day, hour=hour, minute=minute, second=second )
+        return datetime.datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second)
     
     def poll(self):
         """
         Executes polling.
         """
-        pages =  self.fetch_pages()
+        pages = self.fetch_pages()
         for url, html in pages:
-            self.process_as_rss( html )
+            self.process_as_rss(html)
     
     def __exit(self):
         pass

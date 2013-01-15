@@ -99,5 +99,5 @@ class HuffPoPoller( Poller ):
                 priorityd = ".  ".join( [ a[0] for a in self.as_() ] )
                 prioritye = " ".join( self.ps() )
                 n, errors = note.get_or_create( link, prioritya, priorityb, priorityc, priorityd, prioritye, published_at )
-                if errors[0]:
+                if errors:
                     sys.stderr.write( str( errors ) + "\n" )

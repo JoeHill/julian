@@ -3,13 +3,6 @@
 import sys
 import os
 
-def poll():
-    nyt.poll()
-    usatoday.poll()
-    aljazeera.poll()
-    huffpo.poll()
-    msn.poll()
-    
 if __name__ == '__main__':
     abspath = os.path.abspath(__file__)
 
@@ -19,10 +12,6 @@ if __name__ == '__main__':
     os.environ['DJANGO_SETTINGS_MODULE'] = 'julian.settings'
     os.environ['USE_CALIENDO'] = 'True'
     
-    from julian.poller.services.api import nyt
-    from julian.poller.services.api import usatoday
-    from julian.poller.services.api import aljazeera
-    from julian.poller.services.api import huffpo
-    from julian.poller.services.api import msn
-    
-    poll()
+    from julian.poller.services.api import poller
+        
+    poller.poll()

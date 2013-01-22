@@ -12,17 +12,6 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'discourse',                      # Or path to database file if using sqlite3.
-        'USER': 'discourse',                      # Not used with sqlite3.
-        'PASSWORD': 'discourse',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    }
-}
-
-TEST_DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'discourse_test',                      # Or path to database file if using sqlite3.
         'USER': 'discourse_test',                      # Not used with sqlite3.
         'PASSWORD': 'discourse_test',                  # Not used with sqlite3.
@@ -127,7 +116,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'discourse',
-    'poller',
     'south'
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',

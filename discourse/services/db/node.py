@@ -21,19 +21,19 @@ def find_by_note_id(note_id):
     except:
         return None, [sys.exc_info()]
     
-def create_by_title(node_title):
+def get_or_create_by_title(node_title):
     """
-    Creates a node from a title
+    Gets or creates a node from a title
     
     :param str node_title: The title of the Node
     
     :rtype Node, [errors]
     """
     try:
-        n = Node.objects.create(title=node_title)
-        return n, []
+        n, created = Node.objects.get_or_create(title=node_title)
+        return ( n, created ), []
     except:
-        return None, [sys.exc_info()]
+        return ( None, False ), [sys.exc_info()]
         
 def find_by_ids(node_ids):
     """

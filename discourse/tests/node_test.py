@@ -18,7 +18,7 @@ class TestNode(unittest.TestCase):
     
     def create_note(self):
         self.n = Note.objects.create( identifier=u'test_note',
-                                 prioritya=u"Obama Sketches a Firmly Progressive Agenda",
+                                 prioritya=u"Obama Sketches a Firmly Progressive Agenda.",
                                  priorityb=u"""Mr. Obama went out of his way to mention both gay rights and the need to address climate change in a speech that seemed intended to assert his authority over his political rivals and to define his version of modern liberalism after voters returned him to office for a second term.""" )
     
         self.s = self.n.prioritya + u' ' + self.n.priorityb

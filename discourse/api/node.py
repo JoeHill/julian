@@ -16,6 +16,7 @@ from nltk.corpus import conll2000
 
 train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
 nltk.config_megam('/home/joehill/projects/julian/vendor/megam_i686.opt')
+parser = ConsecutiveNPChunker(train_sents) #RegexpParser("NP: {<DT>? <JJ>* <NN|NNP|NNS|CD>+}", loop=5) 
 
 def get_from_note_id(note_id):
     """
@@ -44,11 +45,11 @@ def get_from_string(s):
         s = re.sub( r"\s+", " ", s )
         s = re.sub( r"\s*$", "", s )
         s = re.sub( r"^\s*", "", s )
+        
         sentences = nltk.sent_tokenize(s)
         sentences = [nltk.word_tokenize(sent) for sent in sentences]
         sentences = [nltk.pos_tag(sent) for sent in sentences]
                     
-        parser = ConsecutiveNPChunker(train_sents) #RegexpParser("NP: {<DT>? <JJ>* <NN|NNP|NNS|CD>+}", loop=5) 
         for s in sentences:
             parsed = parser.parse(s)
             subtrees += parsed.subtrees()
@@ -63,6 +64,7 @@ def get_from_string(s):
             titles.add(title)
             
         for title in titles:
+            sys.stderr.write( unicode( title ) + u'\n')
             models.append(Node(title=title, note_id=-1))
         
         return models, errors

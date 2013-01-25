@@ -19,6 +19,7 @@ class Discourse(models.Model):
 
 class Node(models.Model):
     title = models.CharField(max_length=255)
+    note = models.ForeignKey(Note)
 
 class EdgeType(models.Model):
     title = models.CharField(max_length=255)

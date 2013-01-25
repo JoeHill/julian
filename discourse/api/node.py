@@ -3,13 +3,19 @@ import sys
 import re 
 
 import nltk
-from nltk import tokenize
 from nltk.chunk.regexp import RegexpParser
 
 from julian.discourse.services.db import node
 from julian.discourse.api import note
 
 from julian.discourse.api.models.node import Node
+
+from julian.vendor.code_classifier_chunker import ConsecutiveNPChunker
+
+from nltk.corpus import conll2000
+
+train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
+nltk.config_megam('/home/joehill/projects/julian/vendor/megam_i686.opt')
 
 def get_from_note_id(note_id):
     """
@@ -29,23 +35,22 @@ def get_from_string(s):
     
     :rtype list(str): The list of proper nouns
     """
-    quoted = []
-    unquoted = []
     subtrees = []
     models = []
     errors = []
     titles = set()
     try:
-        sentences = tokenize.sent_tokenize(s)
-        for sentence in sentences:
-            if u'“' in sentence or u'”' in sentence or u'"' in sentence:
-                quoted.append(sentence)
-            else:
-                unquoted.append(sentence)
-            
-        parser = RegexpParser("NP: {<DT>? <JJ>* <NN|NNP|NNS|CD>+}", loop=5) 
-        for s in unquoted:
-            parsed = parser.parse(nltk.pos_tag(s.split(' ')))
+        # Preprocessing...
+        s = re.sub( r"\s+", " ", s )
+        s = re.sub( r"\s*$", "", s )
+        s = re.sub( r"^\s*", "", s )
+        sentences = nltk.sent_tokenize(s)
+        sentences = [nltk.word_tokenize(sent) for sent in sentences]
+        sentences = [nltk.pos_tag(sent) for sent in sentences]
+                    
+        parser = ConsecutiveNPChunker(train_sents) #RegexpParser("NP: {<DT>? <JJ>* <NN|NNP|NNS|CD>+}", loop=5) 
+        for s in sentences:
+            parsed = parser.parse(s)
             subtrees += parsed.subtrees()
             
         subtrees = filter(lambda st: st.node == 'NP', subtrees)
@@ -58,7 +63,7 @@ def get_from_string(s):
             titles.add(title)
             
         for title in titles:
-            models.append(Node(title=title))
+            models.append(Node(title=title, note_id=-1))
         
         return models, errors
     except:
@@ -75,23 +80,24 @@ def create_from_note_id(note_id):
         new_nodes = []
         nodes, errors = get_from_note_id(note_id)
         for n in nodes:
-            res, errors = get_or_create_by_title( n.title )
+            res, errors = get_or_create_by_title_and_note_id( n.title, note_id )
             new_node, created = res
             if created:
                 new_nodes.append( new_node )
         return new_nodes, errors
     except:
-        [], [sys.exc_info()] + errors
+        return [], [sys.exc_info()] + errors
 
-def get_or_create_by_title(node_title):
+def get_or_create_by_title_and_note_id(node_title, note_id=-1):
     """
-    Creates a node from a title
+    Gets or creates a node from a title
     
     :param str node_title: The title of the Node
+    :param int note_id: The id of the originating note.
     
     :rtype Node, [errors]
     """
-    res, errors = node.create_by_title(node_title)
+    res, errors = node.get_or_create_by_title_and_note_id(node_title, note_id)
     n, created = res
     try:
         return ( db_to_model(n), created ), errors
@@ -124,4 +130,5 @@ def db_to_model(o):
     if not o:
         raise Exception("Object not passed to convert to model")
     return Node(id=o.id,
-                title=o.title)
+                title=o.title,
+                note_id=o.note_id)

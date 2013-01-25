@@ -21,16 +21,22 @@ def find_by_note_id(note_id):
     except:
         return None, [sys.exc_info()]
     
-def get_or_create_by_title(node_title):
+def get_or_create_by_title_and_note_id(node_title, note_id=-1):
     """
     Gets or creates a node from a title
     
     :param str node_title: The title of the Node
+    :param int note_id: The id of the originating note.
     
     :rtype Node, [errors]
     """
     try:
-        n, created = Node.objects.get_or_create(title=node_title)
+        # Check if exists:
+        if Node.objects.all().filter(title=node_title).exists():
+            return ( Node.objects.all().filter(title=node_title)[0], False ), []
+        
+        n, created = Node.objects.get_or_create(title=node_title, 
+                                                note_id=note_id)
         return ( n, created ), []
     except:
         return ( None, False ), [sys.exc_info()]

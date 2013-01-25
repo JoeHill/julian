@@ -5,8 +5,27 @@ from julian.poller.services.nytpoller import NytPoller
 from julian.poller.services.usatodaypoller import UsaTodayPoller
 
 def poll():
-    AlJazeeraPoller().poll()
-    HuffPoPoller().poll()
-    MsnPoller().poll()
-    NytPoller().poll()
-    UsaTodayPoller().poll()
+    try:    
+        AlJazeeraPoller().poll()
+    except:
+        pass
+    
+    try:
+        HuffPoPoller().poll()
+    except:
+        pass
+    
+    try:
+        MsnPoller().poll()
+    except:
+        pass
+    
+    try:
+        NytPoller().poll()
+    except:
+        pass
+    
+    try:
+        UsaTodayPoller().poll()
+    except:
+        pass

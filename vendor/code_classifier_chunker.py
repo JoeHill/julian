@@ -1,5 +1,13 @@
 import nltk
+import os
+from cPickle import load, dump
 
+from nltk.corpus import conll2000
+
+from settings import ROOT
+
+chunker_path = ROOT + 'vendor/parsers/consecutive_np_chunker.pk1'
+nltk.config_megam(ROOT + 'vendor/megam_i686.opt')
 
 # Natural Language Toolkit: code_classifier_chunker
 def npchunk_features(sentence, i, history):
@@ -44,3 +52,16 @@ class ConsecutiveNPChunker(nltk.ChunkParserI): # [_consec-chunker]
         tagged_sents = self.tagger.tag(sentence)
         conlltags = [(w,t,c) for ((w,t),c) in tagged_sents]
         return nltk.chunk.conlltags2tree(conlltags)
+
+np_chunker = None
+# Cache chunker to vendor
+if os.path.exists(chunker_path):
+    with open(chunker_path,'rb') as i:
+        np_chunker = load(i)
+else:
+    train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
+    np_chunker = ConsecutiveNPChunker(train_sents)
+    with open(chunker_path, 'wb') as o:
+        dump(np_chunker, o, -1)
+
+

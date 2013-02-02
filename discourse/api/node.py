@@ -2,21 +2,12 @@
 import sys
 import re 
 
-import nltk
-from nltk.chunk.regexp import RegexpParser
+from discourse.services.db import node
+from discourse.api.models.node import Node
 
-from julian.discourse.services.db import node
-from julian.discourse.api import note
+from discourse.api import note
 
-from julian.discourse.api.models.node import Node
-
-from julian.vendor.code_classifier_chunker import ConsecutiveNPChunker
-
-from nltk.corpus import conll2000
-
-train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
-nltk.config_megam('/home/joehill/projects/julian/vendor/megam_i686.opt')
-parser = ConsecutiveNPChunker(train_sents) #RegexpParser("NP: {<DT>? <JJ>* <NN|NNP|NNS|CD>+}", loop=5) 
+from discourse.services.nltk import pos
 
 def get_from_note_id(note_id):
     """
@@ -41,17 +32,11 @@ def get_from_string(s):
     errors = []
     titles = set()
     try:
-        # Preprocessing...
-        s = re.sub( r"\s+", " ", s )
-        s = re.sub( r"\s*$", "", s )
-        s = re.sub( r"^\s*", "", s )
-        
-        sentences = nltk.sent_tokenize(s)
-        sentences = [nltk.word_tokenize(sent) for sent in sentences]
-        sentences = [nltk.pos_tag(sent) for sent in sentences]
+        s = pos.clean(s)
+        sentences = pos.tag(s)
                     
         for s in sentences:
-            parsed = parser.parse(s)
+            parsed = pos.parser.parse(s)
             subtrees += parsed.subtrees()
             
         subtrees = filter(lambda st: st.node == 'NP', subtrees)

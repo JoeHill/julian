@@ -1,4 +1,5 @@
 # Django settings for julian project.
+import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -157,3 +158,5 @@ LOGGING = {
         },
     }
 }
+
+ROOT = os.path.abspath(__file__).replace(__file__, '')

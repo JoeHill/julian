@@ -61,3 +61,10 @@ def note():
 	if setup_test_database():
 		with lcd(ROOT):
 			call( " ".join( ['python', 'discourse/tests/note_test.py'] ), shell=True )
+
+@task
+def inference():
+	"""Run interence tests"""
+	if setup_test_database():
+		with lcd(ROOT):
+			call( " ".join( ['python', 'discourse/tests/inference_test.py'] ), shell=True )

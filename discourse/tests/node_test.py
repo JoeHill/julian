@@ -1,18 +1,9 @@
 import unittest
-import traceback
-import os
-
 
 from discourse.models import Node, Edge, Note
 from discourse.api import node
 
-def print_errors_and_exit(errors):
-    if errors:
-        for err in errors:
-            print err[1]
-            for t in traceback.extract_tb(err[2]):
-                print t
-        assert False
+from utils import print_errors_and_exit
 
 class TestNode(unittest.TestCase):
     

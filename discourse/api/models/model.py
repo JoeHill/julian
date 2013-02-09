@@ -1,5 +1,5 @@
-from discourse.api.exceptions import InvalidParams
-from discourse.api.exceptions import  MissingParams
+from julian.discourse.api.exceptions import InvalidParams
+from julian.discourse.api.exceptions import  MissingParams
 
 class Model(dict):
     

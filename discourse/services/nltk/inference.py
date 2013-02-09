@@ -1,6 +1,6 @@
 import nltk
 
-def __is_relevant( tree_component ):
+def role( tree_component ):
     """
     Returns True if the component of the tree is relevant to an edge.
     
@@ -10,10 +10,14 @@ def __is_relevant( tree_component ):
     """
     if isinstance( tree_component, nltk.tree.Tree ):
         if tree_component.node in ( 'NP', 'VP' ):
-            return True
+            return 'np'
     if isinstance( tree_component, tuple ):
-        if tree_component[1] in ( 'VBZ', ):
-            return True
+        if tree_component[1] in ( 'VB',   # base
+                                  'VBZ',  # 3rd singular present
+                                  'VBN',  # past participle
+                                  'VBG',  # gerund
+                                  'VBD'): # simple past
+            return 'verb'
     return False
         
         
@@ -26,6 +30,6 @@ def deduce_edges_from_tree(tree):
     
     :rtype tuple(str, str, str): A tuple containing the first noun phrase, the relationship or action, and the noun phrase receiving the action.
     """
-    components = filter( __is_relevant, tree )
+    components = filter( role, tree )
     for st in components:
-        print st
+        print "COMPONENT", role( st ), st

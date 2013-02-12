@@ -7,13 +7,14 @@ import StringIO
 
 from settings import ROOT
 
-ROOT = '/home/joehill/projects/julian/'
+ROOT = '/home/akellehe/projects/julian/'
 
 COLLINS_ROOT = ROOT + 'vendor/COLLINS-PARSER/'
 EVENTS_PATH  = COLLINS_ROOT + 'models/model%s/events.gz'
 PARSER_PATH  = COLLINS_ROOT + 'code/parser'
 GRAMMAR_PATH = COLLINS_ROOT + 'models/model%s/grammar'
 TMP_FILE_DIR = ROOT + 'tmp'
+
 
 def __write_tmp_file(tagged_sents):
     """
@@ -29,9 +30,10 @@ def __write_tmp_file(tagged_sents):
             f.write( __nltk_sent_to_collins_sent(s) + u'\n' )
     return TMP_FILE_DIR + '/' + tmp_file_name
 
+
 def __nltk_sent_to_collins_sent( nltk_sent ):
     """
-    Converts a tagged sentence in NLTK format to a string of the format required by the collins parser.
+    Converts a tagged sentence in NLTK format to a string of the format required by the collins parser. For lookups you can do nltk.help.brown_tagset() or nltk.help.upenn_tagset()
     
     :param list(tuple(str,str)): A pos tagged sentence in NLTK format.
     
@@ -41,10 +43,81 @@ def __nltk_sent_to_collins_sent( nltk_sent ):
     for word, pos in nltk_sent:
         if pos in ( 'AT', 'CS' ):
             pos = 'DT'
-        elif pos is 'CD': # e.g. 20, 100, 10%
+        elif pos == 'CD': # e.g. 20, 100, 10%
             pos = 'JJ'
+        elif pos == 'NR': # Not recognized?
+            pos = 'NN' # Noun. 
+        elif pos == 'PPS': # Pronoun; it
+            pos = 'PRP' # Personal pronoun
+        elif pos == 'HVD': # Have, past tense.
+            pos = 'VBD' # A verb, past tense
+        elif pos == 'PP$': # Determiner, possessive
+            pos = 'PRP$' # pronoun, possessive
+        elif pos == 'OD': # Numeral, ordinal
+            pos = 'JJ' # Adjective
+        else:
+            print "START:" + str( pos ) + ":END"
         simplified += [(word, pos)]
     return unicode( u"%s " % len(simplified) + u" ".join( i for i in [ u"%s %s" % j for j in simplified ]))
+
+
+class CollinsResult:
+    
+    __maximal_depth = 0
+    
+    def __init__(self, s):
+        self.s = s
+        self.length = len(s)
+
+    def parse(self, entry_callback=None, exit_callback=None):
+        nesting = 0
+        token = ""
+        last_entry_result = None
+        last_exit_result = None
+        for i in range(self.length):
+            if self.s[i] == '(':
+                if i+1 < self.length and self.s[i+1] == '/':
+                    continue
+                nesting += 1
+                if entry_callback:
+                    last_entry_result = entry_callback(token, nesting)
+                token = ""
+            elif self.s[i] == ')':
+                if i+1 < self.length and self.s[i+1] == '/':
+                    continue
+                nesting -= 1
+                if exit_callback:
+                    last_exit_result = exit_callback(token, nesting)
+                token = ""
+        return ( last_entry_result, last_exit_result )
+        
+
+    def maximal_depth(self):
+        if self.__maximal_depth:
+            return self.__maximal_depth
+
+        nesting = 0
+        get_max = lambda t, n: n if n > nesting else nesting
+                
+        self.__maximal_depth, nothing = self.parse( get_max )
+
+        return self.__maximal_depth
+
+    def parse_tuples(self):
+        maximal_depth = self.maximal_depth()
+        for depth in range(maximal_depth,0,-1):
+            for i in range(0,self.length):
+                
+                
+        
+
+    
+def collins_to_tree(collins_result_str="()"):
+    """
+        (TOP~confirmed~1~1 (S~confirmed~2~2 (NPB~Korea~2~2 North/NNP Korea/NNP ) (VP~confirmed~4~1 confirmed/VBD (PP~on~2~1 on/IN (NPB~Tuesday~1~1 Tuesday/NNP ) ) (SBAR-A~that~2~1 that/IN (S-A~had~2~2 (NPB~it~1~1 it/PRP ) (VP~had~3~1 had/VBD (VP-A~conducted~2~1 conducted/VBN (NPB~test~5~5 its/PRP$ third/JJ ,/PUNC, long-threatened/NN nuclear/JJ test/NN ,/PUNC, ) ) (PP~according~2~1 according/VBG (PP-A~to~2~1 to/TO (NPB~service~5~5 the/DT official/JJ KCNA/NN news/NN service/NN ,/PUNC, ) ) ) ) ) ) (SG~posing~1~1 (VP~posing~3~1 posing/VBG (NP-A~challenge~2~1 (NPB~challenge~3~3 a/DT new/JJ challenge/NN ) (PP~for~2~1 for/IN (NPB~administration~3~3 the/DT Obama/NN administration/NN ) ) ) (PP~in~2~1 in/IN (NP-A~effort~2~1 (NPB~effort~2~2 its/PRP$ effort/NN ) (SG~to~1~1 (VP~to~2~1 to/TO (VP-A~keep~3~1 keep/VB (NPB~country~2~2 the/DT country/NN ) (PP~from~2~1 from/IN (SG-A~becoming~1~1 (VP~becoming~2~1 becoming/VBG (NPB~power~4~4 a/DT full-fledged/JJ nuclear/JJ power/NN ./PUNC. ) ) ) ) ) ) ) ) ) ) ) ) ) ) 
+    """
+    c = CollinsResult(collins_result_str)
+    
 
 def build_trees(tagged_sents, beam_size=1000, punct_constraint=1, 
                 distaflag=1, distvflag=1, npbflag=1, model=2, 

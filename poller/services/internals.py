@@ -9,6 +9,8 @@ from bs4 import Declaration
 from bs4 import CData
 from bs4 import Doctype
 
+from dateutil.parser import parse as dparse
+
 import pycurl
 import StringIO
 
@@ -241,42 +243,13 @@ class Poller:
         
         :rtype datetime.datetime:
         """
-        # Sat, 05 Jan 2013 03:55:54 +0000
         if not published_at:
             return datetime.datetime.now()
-        # Datetime formats we've encountered from most to least common.
         
         published_at = re.sub( r"\s+", " ", str( published_at) )
-        published_at = published_at.replace( 'PST', 'GMT' ) # TODO: Fix these.
-        published_at = published_at.replace( 'EST', 'GMT' )
-        published_at = published_at.replace( 'MEZ', 'GMT' )
         
         print "Converting " + str( published_at )
-        if '+' in published_at:
-            t = time.strptime(published_at, "%a, %d %b %Y %H:%M:%S +0000")
-        elif 'MT' in published_at:
-            t = time.strptime(published_at, "%a, %d %b %Y %H:%M:%S %Z")
-        elif 'T' in published_at and 'Z' in published_at:
-            t = time.strptime(published_at.replace('Z', 'UTC'), '%Y-%m-%dT%H:%M:%S%Z')
-        elif ' Z' in published_at:
-            t = time.strptime(published_at.replace('Z', 'UTC'), "%a, %d %b %Y %H:%M:%S %Z")
-        elif '/' in published_at and ( 'AM' in published_at or 'PM' in published_at ):
-            t = time.strptime( published_at, "%m/%d/%Y %I:%M:%S %p" )
-        elif ',' in published_at:
-            try:
-                t = time.strptime( published_at, "%a, %d %b %Y %H:%M:%S" )
-            except:
-                t = time.strptime( published_at, "%a, %d %b %Y %H:%M:%S %Z" )
-        else:
-            raise Exception( "Couldn't discern datetime from <" + str( published_at ) + ">" )
-
-        year = t.tm_year
-        month = t.tm_mon
-        day = t.tm_mday
-        hour = t.tm_hour
-        minute = t.tm_min
-        second = t.tm_sec
-        return datetime.datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second)
+        return dparse(published_at)
     
     def poll(self):
         """

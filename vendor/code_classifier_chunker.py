@@ -7,6 +7,7 @@ from nltk.corpus import conll2000
 from settings import ROOT
 
 chunker_path = ROOT + 'vendor/parsers/consecutive_np_chunker.pk1'
+megam_path = ROOT + 'vendor/megam_i686.opt'
 nltk.config_megam(ROOT + 'vendor/megam_i686.opt')
 
 # Natural Language Toolkit: code_classifier_chunker

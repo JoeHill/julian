@@ -42,10 +42,12 @@ class CollinsResult:
         if self.__maximal_depth:
             return self.__maximal_depth
 
-        nesting = 0
-        get_max = lambda t, n, i: n if n > nesting else nesting
+        self.__maximal_depth = 0
+        def get_max(t, n, i):
+            self.__maximal_depth = n if n > self.__maximal_depth else self.__maximal_depth
+            return self.__maximal_depth
                 
-        self.__maximal_depth, nothing = self.parse( get_max )
+        self.__maximal_depth, nothing = self.parse( entry_callback=get_max )
 
         return self.__maximal_depth
     
@@ -63,7 +65,6 @@ class CollinsResult:
 
     def node_to_tree(self, node_string ):
         children = []
-        print "NODE STRING:", node_string
         s = re.split(r'\s+', node_string[1:-1])
         node_value = s[0].split('~')[0]
         for tagged_word in s[1:]:
@@ -71,8 +72,7 @@ class CollinsResult:
                 continue
             split_word = tagged_word.split('/')
             if len(split_word) == 1:
-                print "TAGGED WORD:", tagged_word
-                children.append(self.__tree_refs[tagged_word])
+                children.append(self.__tree_refs[tagged_word.strip()])
             else:
                 word, pos = tuple(["".join(split_word[0:-1]), split_word[-1]])
                 children.append( Tree( pos, [word] ) )
@@ -84,7 +84,7 @@ class CollinsResult:
         maximal_depth = self.maximal_depth()
         subtree = None
         for depth in range(maximal_depth,-1,-1):
-            def exit_callback(token, nesting, index):
+            def exit_callback(token, nesting, index): # Fires the replacement
                 if nesting == depth:
                     start, stop = token
                     subtree = self.node_to_tree( self.s[start:stop] )

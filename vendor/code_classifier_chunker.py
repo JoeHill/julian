@@ -54,15 +54,15 @@ class ConsecutiveNPChunker(nltk.ChunkParserI): # [_consec-chunker]
         conlltags = [(w,t,c) for ((w,t),c) in tagged_sents]
         return nltk.chunk.conlltags2tree(conlltags)
 
-np_chunker = None
-# Cache chunker to vendor
-if os.path.exists(chunker_path):
-    with open(chunker_path,'rb') as i:
-        np_chunker = load(i)
-else:
-    train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
-    np_chunker = ConsecutiveNPChunker(train_sents)
-    with open(chunker_path, 'wb') as o:
-        dump(np_chunker, o, -1)
 
-
+if __name__ == '__main__':
+    np_chunker = None
+    # Cache chunker to vendor
+    if os.path.exists(chunker_path):
+        with open(chunker_path,'rb') as i:
+            np_chunker = load(i)
+    else:
+        train_sents = conll2000.chunked_sents('train.txt', chunk_types=['NP'])
+        np_chunker = ConsecutiveNPChunker(train_sents)
+        with open(chunker_path, 'wb') as o:
+            dump(np_chunker, o, -1)

@@ -76,19 +76,12 @@ class TestCollinsParser(unittest.TestCase):
             ) 
         )
         """
-        sys.stderr.write( s + '\n')
         tree = parser.collins_to_tree(s)
         
     def test_pos_tagged_to_collins_tree(self):
-        """
         sentences = "Senators from both parties and their staffs met for hours on Thursday as they struggled to overcome obstacles that several people familiar with the negotiations said could hinder a deal in the weeks ahead."
         tagged_sents = pos.tag(sentences)
-        t = parser.build_trees(tagged_sents)
-        print "T IS:", t
-        assert False
-        """
-        pass
-        
+        t = parser.build_trees(tagged_sents)        
         
 if __name__ == '__main__':
     unittest.main()

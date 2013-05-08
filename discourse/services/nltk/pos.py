@@ -2,7 +2,6 @@ import nltk
 import re
 from cPickle import load
 
-from vendor.code_classifier_chunker import np_chunker
 from settings import ROOT
 
 

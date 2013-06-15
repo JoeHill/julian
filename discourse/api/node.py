@@ -2,12 +2,12 @@
 import sys
 import re 
 
-from discourse.services.db import node
-from discourse.api.models.node import Node
+from julian.discourse.services.db import node
+from julian.discourse.api.models.node import Node
 
-from discourse.api import note
+from julian.discourse.api import note
 
-from discourse.services.nltk import pos
+from julian.discourse.services.nltk import pos
 
 def get_from_note_id(note_id):
     """
@@ -27,6 +27,7 @@ def get_from_string(s):
     
     :rtype list(str): The list of proper nouns
     """
+    
     subtrees = []
     models = []
     errors = []

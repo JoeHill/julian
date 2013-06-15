@@ -1,4 +1,5 @@
 import nltk
+import os
 import re
 from cPickle import load
 
@@ -7,7 +8,7 @@ from settings import ROOT
 
 def __load_tagger(name):
     tagger = None
-    with open(ROOT + 'vendor/taggers/' + name + '.pk1') as i:
+    with open(os.path.join(ROOT, 'vendor', 'taggers', name + '.pk1')) as i:
         tagger = load(i)
     return tagger
 

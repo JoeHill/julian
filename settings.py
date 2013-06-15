@@ -159,4 +159,4 @@ LOGGING = {
     }
 }
 
-ROOT = os.path.abspath(__file__).replace(__file__, '')
+ROOT = os.path.dirname(os.path.abspath(__file__))

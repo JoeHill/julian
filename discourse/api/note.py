@@ -31,6 +31,21 @@ def find_by_id( note_id ):
         return db_to_model(n), errors
     except:
         return None, [sys.exc_info()]
+
+def find_by_start_date_and_end_date(start_date, end_date):
+    """
+    Finds notes by the published_at date range.
+    
+    :param datetime.datetime start_date: The starting date for the note.
+    :param datetime.datetime end_date: The ending date for the note.
+    
+    :rtype list(julian.discourse.api.models.Note):
+    """
+    try:
+        ns, errors = note.find_by_start_date_and_end_date(start_date, end_date)
+        return [db_to_model(n) for n in ns], errors
+    except:
+        return None, [sys.exc_info()]
     
 def update( id=UNDEFINED, identifier=UNDEFINED, prioritya=UNDEFINED, priorityb=UNDEFINED, priorityc=UNDEFINED, priorityd=UNDEFINED, prioritye=UNDEFINED, created_at=UNDEFINED, updated_at=UNDEFINED, published_at=UNDEFINED, processed=UNDEFINED):
     """

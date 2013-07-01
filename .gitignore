@@ -10,3 +10,4 @@ seeds
 *.db
 cookie.txt
 *.o
+.settings

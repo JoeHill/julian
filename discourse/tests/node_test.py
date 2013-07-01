@@ -1,11 +1,17 @@
-import unittest
+import sys
+import os
+
+from __init__ import TestApi
+
+from django.utils import unittest
 
 from discourse.models import Node, Edge, Note
 from discourse.api import node
 
+
 from utils import print_errors_and_exit
 
-class TestNode(unittest.TestCase):
+class TestNode(TestApi):
     
     def create_note(self):
         self.n = Note.objects.create( identifier=u'test_note',
@@ -16,20 +22,7 @@ class TestNode(unittest.TestCase):
     
     def setUp(self):
         self.create_note()
-    
         
-    def tearDown(self):
-        nodes = Node.objects.all()
-        for n in nodes:
-            n.delete()
-        edges = Edge.objects.all()
-        for e in edges:
-            e.delete()
-        notes = Note.objects.all()
-        for n in notes:
-            n.delete() 
-    
-    
     def test_get_from_note_id_and_get_from_string(self):
         ns, errors = node.get_from_note_id(self.n.id)
         print_errors_and_exit( errors )

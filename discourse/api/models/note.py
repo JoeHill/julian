@@ -1,4 +1,6 @@
-from julian.discourse.api.models.model import Model
+import discourse
+
+from discourse.api.models.model import Model
 
 class Note(Model):
     REQUIRED_FIELDS = set(['identifier'])

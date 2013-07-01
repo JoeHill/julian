@@ -1,10 +1,10 @@
 import sys
 
-from julian.discourse.services.db import note
-from julian.discourse.api.models.note import Note
+from discourse.api.services.db import note
+from discourse.api.models.note import Note
 
-from julian.utils import UNDEFINED
-from julian.utils import SentinelValue as SV
+from utils import UNDEFINED
+from utils import SentinelValue as SV
 
 def exists( identifier ):
     """

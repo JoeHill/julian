@@ -1,3 +1,4 @@
+import sys
 import os
 from subprocess import call
 
@@ -16,12 +17,6 @@ def setup_test_database():
     return DATABASES_READY
   # Set up test settings (database)
   os.environ['DJANGO_SETTINGS_MODULE'] = 'julian.test_settings'
-  pp = []
-  if 'PYTHONPATH' in os.environ:
-    pp = os.environ['PYTHONPATH'].split( ':' )
-  pp.append( ROOT )
-  pp.append( ROOT.replace( 'julian', '' ) )
-  os.environ['PYTHONPATH'] = ":".join( pp )
   # Run migrations
   with lcd(ROOT):
     # Drop tables
@@ -75,4 +70,3 @@ def collins_parser():
   if setup_test_database():
     with lcd(ROOT):
       call( " ".join( ['python', 'discourse/tests/collins_parser_test.py'] ), shell=True )
-

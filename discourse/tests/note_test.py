@@ -1,24 +1,23 @@
 import unittest
+import sys, os
 
-from julian.discourse.api import note
+from __init__ import TestApi
 
-class NoteTest(unittest.TestCase):
+from django.utils.timezone import now
+
+from discourse.api import note
+
+class NoteTest(TestApi):
     def test_exists(self):
-        self.assertTrue(note.exists(u'http://money.msn.com/investing/would-a-us-default-mean-disaster-jubak.aspx'))
+        n, created = self.get_note()
+        self.assertTrue(note.exists(n.identifier))
     
     def test_find_by_id(self):
-        n, errors = note.find_by_id(3022)
-        self.assertEquals(n.id, 3022)
-        self.assertEquals(n.identifier, u'http://money.msn.com/investing/would-a-us-default-mean-disaster-jubak.aspx')
+        n, created = self.get_note()
+        target, errors = note.find_by_id(n.id)
+        self.assertEquals(n.id, target.id)
+        self.assertEquals(n.identifier, u'http://www.google.com/')
         self.assertTrue(not errors)
-        
-    def test_get_or_create(self):
-        pass
-    
-    def test_find_all(self):
-        ns, errors = note.find_all()
-        self.assertTrue( not errors )
-        
     
 if __name__ == '__main__':
     unittest.main()

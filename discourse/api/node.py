@@ -2,12 +2,13 @@
 import sys
 import re 
 
-from julian.discourse.services.db import node
-from julian.discourse.api.models.node import Node
+from discourse.api.services.db import node
+from discourse.api.models.node import Node
 
-from julian.discourse.api import note
+from discourse.api import note
+from discourse.api import edge
 
-from julian.discourse.services.nltk import pos
+from discourse.api.services.nltk import pos
 
 def get_from_note_id(note_id):
     """
@@ -19,6 +20,14 @@ def get_from_note_id(note_id):
     res, errs = get_from_string(s)
     return res, errs + errors
 
+def get_from_note(n):
+    """
+    Parses the note into nodes.
+    """
+    s = n.prioritya + u' ' + n.priorityb + u' ' + n.priorityc + u' ' + n.priorityd + u' ' + n.prioritye
+    res, errs = get_from_string(s)
+    return res, errs
+
 def get_from_string(s):
     """
     Parses a string into a list of POS tagged tuples. After that parses out all proper nouns. If the NNP is followed by another NNP they are concatenated.
@@ -27,32 +36,13 @@ def get_from_string(s):
     
     :rtype list(str): The list of proper nouns
     """
-    
-    subtrees = []
     models = []
     errors = []
-    titles = set()
     try:
-        s = pos.clean(s)
-        sentences = pos.tag(s)
-                    
-        for s in sentences:
-            parsed = pos.parser.parse(s)
-            subtrees += parsed.subtrees()
+        unigrams = re.split("\s+", s)
+        for unigram in unigrams:
+            models.append(Node(title=unigram, note_id=-1))
             
-        subtrees = filter(lambda st: st.node == 'NP', subtrees)
-        for tree in subtrees:
-            title = re.sub(r"\s+", " ", " ".join([ word[0] for word in tree ])) # Replace multiple spaces with one
-            title = re.sub(r"[^-. 'a-zA-Z]", "", title) # Clean punctuation
-            title = re.sub(r"\.$", "", title) # Remove trailing periods
-            title = re.sub(r"\s*$", "", title) # Strip right
-            title = re.sub(r"^\s*", "", title) # Strip left 
-            titles.add(title)
-            
-        for title in titles:
-            sys.stderr.write( unicode( title ) + u'\n')
-            models.append(Node(title=title, note_id=-1))
-        
         return models, errors
     except:
         return [], [sys.exc_info()] + errors
@@ -65,6 +55,7 @@ def create_from_note_id(note_id):
     
     """
     try:
+        errors = []
         new_nodes = []
         nodes, errors = get_from_note_id(note_id)
         for n in nodes:
@@ -85,9 +76,9 @@ def get_or_create_by_title_and_note_id(node_title, note_id=-1):
     
     :rtype Node, [errors]
     """
-    res, errors = node.get_or_create_by_title_and_note_id(node_title, note_id)
-    n, created = res
     try:
+        res, errors = node.get_or_create_by_title_and_note_id(node_title, note_id)
+        n, created = res
         return ( db_to_model(n), created ), errors
     except:
         return ( None, False ), [sys.exc_info()] + errors
@@ -112,6 +103,14 @@ def find_by_ids(node_ids):
     :rtype list(Node), (Error):
     """
     ns, errors = node.find_by_ids(node_ids)
+    return [db_to_model(n) for n in ns], errors
+
+def find():
+    """
+    Returns all nodes stored locally.
+    
+    """
+    ns, errors = node.find()
     return [db_to_model(n) for n in ns], errors
 
 def db_to_model(o):

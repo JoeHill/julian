@@ -1,8 +1,8 @@
 import nltk
 
-from julian.discourse.services.db import edge
+from discourse.api.services.db import edge
 
-from julian.discourse.api.models.edge import Edge
+from discourse.api.models.edge import Edge
 
 def find_by_note_id(note_id):
     """
